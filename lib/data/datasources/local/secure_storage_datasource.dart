@@ -7,7 +7,7 @@ class SecureStorageDatasource {
   static const String _prefix = 'token_watch_';
   static const String _apiKeySuffix = '_api_key';
 
-  SecureStorageDatasource({required this.storage});
+  const SecureStorageDatasource({required this.storage});
 
   String _keyFor(ProviderId providerId) => '$_prefix$providerId$_apiKeySuffix';
 

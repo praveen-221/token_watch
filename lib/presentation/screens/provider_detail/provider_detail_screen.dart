@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/domain/entities/usage_level.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
@@ -28,6 +29,16 @@ class ProviderDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/dashboard');
+            }
+          },
+        ),
         title: Hero(tag: 'provider-card-${_providerId.id}', child: Text(_providerId.displayName)),
         flexibleSpace: ClipRRect(
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -88,8 +99,6 @@ class ProviderDetailScreen extends ConsumerWidget {
                     'Last updated: ${_formatDateTime(snapshot.fetchedAt!)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.outline),
                   ),
-                const SizedBox(height: 24),
-                _buildApiKeySection(context, ref),
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
@@ -101,12 +110,14 @@ class ProviderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildDetailUsage(BuildContext context, ProviderSnapshot snapshot) {
-    // Simple per-category cards for Session and Weekly usage inside a glass container
+    // Simple per-category cards for Session, Weekly and Monthly usage inside a glass container
     return Column(
       children: [
         _buildUsageTile(context, 'Session', snapshot.sessionUsed, snapshot.sessionLimit, snapshot.sessionLevel),
         const SizedBox(height: 8),
         _buildUsageTile(context, 'Weekly', snapshot.weeklyUsed, snapshot.weeklyLimit, snapshot.weeklyLevel),
+        const SizedBox(height: 8),
+        _buildUsageTile(context, 'Monthly', snapshot.monthlyUsed, snapshot.monthlyLimit, snapshot.monthlyLevel),
       ],
     );
   }
@@ -121,13 +132,12 @@ class ProviderDetailScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: level.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(level.name, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: level.color)),
+              Text(
+                '${(percent * 100).toInt()}%',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: level.color,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -136,16 +146,8 @@ class ProviderDetailScreen extends ConsumerWidget {
             value: percent.clamp(0.0, 1.0),
             backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             color: level.color,
-            minHeight: 8,
+            minHeight: 10,
             borderRadius: BorderRadius.circular(4),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(used != null ? '$used' : '—'),
-              Text(limit != null ? '/ $limit' : ''),
-            ],
           ),
         ],
       ),
@@ -187,33 +189,6 @@ class ProviderDetailScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildApiKeySection(BuildContext context, WidgetRef ref) {
-    return TokenGlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'API Key',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          const Text('••••••••••••••••'),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              FilledButton.tonal(
-                onPressed: () {},
-                child: const Text('Change Key'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(onPressed: () {}, child: const Text('Remove')),
-            ],
-          ),
-        ],
       ),
     );
   }

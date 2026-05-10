@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/presentation/providers/api_keys_provider.dart';
+import 'package:token_watch/presentation/providers/settings_provider.dart';
+import 'package:token_watch/presentation/providers/usage_provider.dart';
+import 'package:token_watch/presentation/widgets/common/provider_icon.dart';
 import 'package:token_watch/presentation/widgets/common/token_glass_card.dart';
 
 class ApiKeyManagementScreen extends ConsumerStatefulWidget {
@@ -92,7 +95,7 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
           children: [
             Row(
               children: [
-                Icon(provider.icon, size: 20, color: Theme.of(context).colorScheme.primary),
+                ProviderIcon(providerId: provider, radius: 10),
                 const SizedBox(width: 8),
                 Text(
                   provider.displayName,
@@ -129,8 +132,12 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
                           final key = controller.text.trim();
                           if (key.isNotEmpty) {
                             ref.read(apiKeysNotifierProvider.notifier).saveKey(provider.id, key);
+                            // Auto-enable the provider when API key is saved
+                            ref.read(settingsNotifierProvider.notifier).toggleProvider(provider, true);
+                            // Trigger a refresh to fetch usage data
+                            ref.read(usageNotifierProvider.notifier).refreshAll();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${provider.displayName} API key saved')),
+                              SnackBar(content: Text('${provider.displayName} API key saved and enabled')),
                             );
                           }
                         },

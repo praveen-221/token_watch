@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
+import 'package:token_watch/domain/entities/usage_level.dart';
+import 'package:token_watch/presentation/providers/analytics_provider.dart';
+import 'package:token_watch/presentation/providers/settings_provider.dart';
 import 'package:token_watch/presentation/providers/usage_provider.dart';
+import 'package:token_watch/presentation/widgets/common/provider_icon.dart';
 import 'package:token_watch/presentation/widgets/common/token_glass_card.dart';
 import 'package:token_watch/presentation/widgets/charts/trend_line_chart.dart';
 import 'package:token_watch/presentation/widgets/charts/usage_bar_chart.dart';
-
-enum AnalyticsPeriod { day, week, month }
+import 'package:intl/intl.dart';
 
 class AnalyticsScreen extends ConsumerStatefulWidget {
   const AnalyticsScreen({super.key});
@@ -23,9 +26,41 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   AnalyticsPeriod _selectedPeriod = AnalyticsPeriod.week;
 
   @override
+  void initState() {
+    super.initState();
+    // Schedule initial computation after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshAndCompute();
+    });
+  }
+
+  void _refreshAndCompute() {
+    final usageState = ref.read(usageStateProvider);
+    ref.read(analyticsNotifierProvider.notifier).computeFromSnapshots(
+        usageState.snapshots);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final usageState = ref.watch(usageStateProvider);
-    final spots = _generateTrendSpots(usageState);
+    final analyticsState = ref.watch(analyticsNotifierProvider);
+    final settings = ref.watch(settingsNotifierProvider);
+
+    // Filter snapshots by enabled providers
+    final filteredSnapshots = Map<ProviderId, ProviderSnapshot>.fromEntries(
+      usageState.snapshots.entries
+          .where((e) => settings.enabledProviders[e.key] ?? true),
+    );
+
+    // Re-compute analytics whenever snapshots change
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsNotifierProvider.notifier).computeFromSnapshots(
+          filteredSnapshots);
+    });
+
+    final days = _daysForPeriod(_selectedPeriod);
+    final spots = _generateTrendSpots(filteredSnapshots, days);
+    final periodLabel = _periodLabel(_selectedPeriod);
 
     return Scaffold(
       appBar: AppBar(
@@ -45,11 +80,17 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Period selector: Day, Week
             SegmentedButton<AnalyticsPeriod>(
               segments: const [
-                ButtonSegment(value: AnalyticsPeriod.day, label: Text('Day'), icon: Icon(Icons.today)),
-                ButtonSegment(value: AnalyticsPeriod.week, label: Text('Week'), icon: Icon(Icons.date_range)),
-                ButtonSegment(value: AnalyticsPeriod.month, label: Text('Month'), icon: Icon(Icons.calendar_month)),
+                ButtonSegment(
+                    value: AnalyticsPeriod.day,
+                    label: Text('Day'),
+                    icon: Icon(Icons.today)),
+                ButtonSegment(
+                    value: AnalyticsPeriod.week,
+                    label: Text('Week'),
+                    icon: Icon(Icons.date_range)),
               ],
               selected: {_selectedPeriod},
               onSelectionChanged: (selected) {
@@ -57,6 +98,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               },
             ),
             const SizedBox(height: 24),
+
             // Usage by Provider
             TokenGlassCard(
               child: Column(
@@ -64,84 +106,97 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 children: [
                   Text(
                     'Usage by Provider',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style:
+                        Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                   ),
-                  const SizedBox(height: 16),
-                  if (usageState.snapshots.isEmpty)
+                  const SizedBox(height: 4),
+                  Text(
+                    periodLabel,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (filteredSnapshots.isEmpty)
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 32),
                         child: Text(
                           'No usage data yet',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
                           ),
                         ),
                       ),
                     )
                   else
-                    UsageBarChart(data: _getUsageByProvider(usageState)),
+                    UsageBarChart(data: _getUsageByProvider(filteredSnapshots)),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            // Trend
-            TokenGlassCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Usage Trend',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 16),
-                  TrendLineChart(spots: spots),
-                ],
+
+            // Usage Trend - only show for week (not for single day)
+            if (_selectedPeriod == AnalyticsPeriod.week)
+              TokenGlassCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Usage Trend — $periodLabel',
+                      style:
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                    ),
+                    const SizedBox(height: 16),
+                    TrendLineChart(spots: spots, totalDays: days),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            // Summary
+            if (_selectedPeriod == AnalyticsPeriod.week) const SizedBox(height: 16),
+
+            // Summary stats
             TokenGlassCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Summary',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style:
+                        Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStat(context, 'Total Tokens', usageState.totalSessionUsed.toString()),
-                      _buildStat(context, 'Est. Cost', '\$${usageState.totalEstimatedCost.toStringAsFixed(4)}'),
-                      _buildStat(context, 'Providers', usageState.snapshots.length.toString()),
+                      _buildStat(
+                          context,
+                          'Total Tokens',
+                          _formatNumber(
+                              analyticsState.totalTokens)),
+                      _buildStat(
+                          context,
+                          'Est. Cost',
+                          '\$${analyticsState.totalCost.toStringAsFixed(4)}'),
+                      _buildStat(context, 'Providers',
+                          analyticsState.totalProviders.toString()),
                     ],
                   ),
                 ],
               ),
             ),
-            // Per-provider breakdown
-            if (usageState.snapshots.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              TokenGlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Per-Provider Details',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 12),
-                    ...usageState.snapshots.entries.map((e) => _ProviderDetailRow(
-                          providerId: e.key,
-                          snapshot: e.value,
-                        )),
-                  ],
-                ),
-              ),
+
             ],
-          ],
         ),
       ),
     );
@@ -152,44 +207,67 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       children: [
         Text(label, style: Theme.of(context).textTheme.labelMedium),
         const SizedBox(height: 4),
-        Text(value, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text(value,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Map<ProviderId, double> _getUsageByProvider(UsageState state) {
+  String _formatNumber(int n) {
+    if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
+    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
+    return n.toString();
+  }
+
+  Map<ProviderId, double> _getUsageByProvider(Map<ProviderId, ProviderSnapshot> snapshots) {
     final map = <ProviderId, double>{};
-    for (final entry in state.snapshots.entries) {
+    for (final entry in snapshots.entries) {
       map[entry.key] = entry.value.sessionPercent;
     }
     return map;
   }
 
-  List<FlSpot> _generateTrendSpots(UsageState state) {
-    // Derive trend from actual usage snapshots
-    if (state.snapshots.isEmpty) {
-      // Return flat line if no data
-      return List.generate(7, (i) => FlSpot(i.toDouble(), 0.0));
+  List<FlSpot> _generateTrendSpots(Map<ProviderId, ProviderSnapshot> snapshots, int days) {
+    if (snapshots.isEmpty) {
+      return List.generate(days, (i) => FlSpot(i.toDouble(), 0.0));
     }
 
-    // Build trend from total session usage across providers
-    final days = _selectedPeriod == AnalyticsPeriod.day
-        ? 1
-        : _selectedPeriod == AnalyticsPeriod.week
-            ? 7
-            : 30;
-
-    final totalUsed = state.totalSessionUsed;
+    int totalUsed = 0;
+    for (final snap in snapshots.values) {
+      totalUsed += snap.sessionUsed ?? 0;
+    }
     final points = <FlSpot>[];
 
     for (int i = 0; i < days; i++) {
-      // Distribute usage proportionally (simple linear model based on available data)
       final x = i.toDouble();
-      final y = totalUsed > 0 ? (totalUsed.toDouble() / days) * (i + 1) : 0.0;
+      final y = totalUsed > 0
+          ? (totalUsed.toDouble() / days) * (i + 1)
+          : 0.0;
       points.add(FlSpot(x, y));
     }
 
     return points;
+  }
+
+  int _daysForPeriod(AnalyticsPeriod period) {
+    switch (period) {
+      case AnalyticsPeriod.day:
+        return 1;
+      case AnalyticsPeriod.week:
+        return 7;
+    }
+  }
+
+  String _periodLabel(AnalyticsPeriod period) {
+    switch (period) {
+      case AnalyticsPeriod.day:
+        return 'Today';
+      case AnalyticsPeriod.week:
+        return 'This Week';
+    }
   }
 }
 
@@ -202,11 +280,13 @@ class _ProviderDetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final percent = snapshot.sessionPercent;
+    final level = snapshot.sessionLevel;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          Icon(providerId.icon, size: 18, color: cs.primary),
+          ProviderIcon(providerId: providerId, radius: 9),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -214,24 +294,38 @@ class _ProviderDetailRow extends StatelessWidget {
               style: theme.textTheme.bodyMedium,
             ),
           ),
-          Text(
-            '${snapshot.sessionUsed ?? 0} / ${snapshot.sessionLimit ?? 0}',
-            style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: snapshot.sessionLevel.color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              '${(snapshot.sessionPercent * 100).toInt()}%',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: snapshot.sessionLevel.color,
-                fontWeight: FontWeight.w600,
+          // Session usage bar (colored by usage level)
+          SizedBox(
+            width: 80,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: percent.clamp(0.0, 1.0),
+                backgroundColor: cs.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(level.color),
+                minHeight: 8,
               ),
             ),
+          ),
+          const SizedBox(width: 8),
+          // Percentage text
+          SizedBox(
+            width: 42,
+            child: Text(
+              '${(percent * 100).toInt()}%',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: level.color,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ),
+          const SizedBox(width: 4),
+          // Used / Limit
+          Text(
+            '${snapshot.sessionUsed ?? 0}/${snapshot.sessionLimit ?? 0}',
+            style:
+                theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],
       ),

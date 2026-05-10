@@ -9,6 +9,8 @@ class ProviderModel {
   int? sessionLimit;
   int? weeklyUsed;
   int? weeklyLimit;
+  int? monthlyUsed;
+  int? monthlyLimit;
   DateTime? lastSync;
   String? sourceUsed;
   double? estimatedCost;
@@ -21,6 +23,8 @@ class ProviderModel {
     this.sessionLimit,
     this.weeklyUsed,
     this.weeklyLimit,
+    this.monthlyUsed,
+    this.monthlyLimit,
     this.lastSync,
     this.sourceUsed,
     this.estimatedCost,
@@ -37,6 +41,8 @@ class ProviderModel {
       sessionLimit: sessionLimit,
       weeklyUsed: weeklyUsed,
       weeklyLimit: weeklyLimit,
+      monthlyUsed: monthlyUsed,
+      monthlyLimit: monthlyLimit,
       lastReset: lastSync,
       fetchedAt: lastSync,
       sourceUsed: sourceUsed,
@@ -53,6 +59,8 @@ class ProviderModel {
       sessionLimit: snapshot.sessionLimit,
       weeklyUsed: snapshot.weeklyUsed,
       weeklyLimit: snapshot.weeklyLimit,
+      monthlyUsed: snapshot.monthlyUsed,
+      monthlyLimit: snapshot.monthlyLimit,
       lastSync: snapshot.fetchedAt,
       sourceUsed: snapshot.sourceUsed,
       estimatedCost: snapshot.estimatedCost,
@@ -68,6 +76,8 @@ class ProviderModel {
       'sessionLimit': sessionLimit,
       'weeklyUsed': weeklyUsed,
       'weeklyLimit': weeklyLimit,
+      'monthlyUsed': monthlyUsed,
+      'monthlyLimit': monthlyLimit,
       'lastSync': lastSync?.toIso8601String(),
       'sourceUsed': sourceUsed,
       'estimatedCost': estimatedCost,
@@ -83,6 +93,8 @@ class ProviderModel {
       sessionLimit: json['sessionLimit'] as int?,
       weeklyUsed: json['weeklyUsed'] as int?,
       weeklyLimit: json['weeklyLimit'] as int?,
+      monthlyUsed: json['monthlyUsed'] as int?,
+      monthlyLimit: json['monthlyLimit'] as int?,
       lastSync: json['lastSync'] != null ? DateTime.parse(json['lastSync'] as String) : null,
       sourceUsed: json['sourceUsed'] as String?,
       estimatedCost: (json['estimatedCost'] as num?)?.toDouble(),

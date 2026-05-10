@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
 import 'package:token_watch/domain/engine/provider_engine.dart';
+import 'package:token_watch/data/datasources/local/secure_storage_datasource.dart' show SecureStorageDatasource;
 import 'package:token_watch/presentation/providers/engine_provider.dart';
 
 enum RefreshState { idle, loading, error }
@@ -39,9 +41,9 @@ class UsageState {
 
   factory UsageState.initial() {
     return const UsageState(
-      snapshots: {},
-      errors: {},
-      isRefreshing: {},
+      snapshots: <ProviderId, ProviderSnapshot>{},
+      errors: <ProviderId, String>{},
+      isRefreshing: <ProviderId, bool>{},
       refreshState: RefreshState.idle,
     );
   }
@@ -77,11 +79,13 @@ class UsageState {
   bool get hasErrors => errors.isNotEmpty;
 }
 
-final usageNotifierProvider =
-    StateNotifierProvider<UsageNotifier, UsageState>((ref) {
-  final engine = ref.watch(providerEngineProvider);
-  return UsageNotifier(engine);
-});
+final usageNotifierProvider = StateNotifierProvider<UsageNotifier, UsageState>(
+  (ref) {
+    final engine = ref.watch(providerEngineProvider);
+    return UsageNotifier(engine);
+  },
+  name: 'UsageNotifier',
+);
 
 final usageStateProvider = Provider<UsageState>((ref) {
   return ref.watch(usageNotifierProvider);
@@ -126,21 +130,54 @@ class UsageNotifier extends StateNotifier<UsageState> {
   final ProviderEngine _engine;
   final StreamController<ProviderUpdateEvent> _eventController =
       StreamController<ProviderUpdateEvent>.broadcast();
+  final SecureStorageDatasource _storage;
 
-  UsageNotifier(this._engine) : super(UsageState.initial()) {
-    _loadFromCache();
+  UsageNotifier(this._engine, [this._storage = const SecureStorageDatasource(
+    storage: const FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    ),
+  )]) : super(UsageState.initial()) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    // First load from Hive cache
+    await _loadFromCache();
+    
+    // If no cached data, trigger a refresh to fetch fresh data
+    if (state.snapshots.isEmpty) {
+      refreshAll();
+    }
   }
 
   Stream<ProviderUpdateEvent> get eventStream => _eventController.stream;
 
+  /// Reads stored API keys from secure storage and maps them to ProviderId.
+  Future<Map<ProviderId, String>> _readApiKeys() async {
+    try {
+      final allKeys = await _storage.getAllApiKeys();
+      return allKeys.map((key, value) {
+        final pid = ProviderId.values.firstWhere(
+          (p) => p.id == key,
+          orElse: () => ProviderId.openai,
+        );
+        return MapEntry(pid, value ?? '');
+      });
+    } catch (_) {
+      return <ProviderId, String>{};
+    }
+  }
+
   Future<void> refreshProvider(ProviderId id) async {
+    final apiKeys = await _readApiKeys();
     final nextRefreshing = Map<ProviderId, bool>.from(state.isRefreshing);
     nextRefreshing[id] = true;
     state = state.copyWith(
         isRefreshing: nextRefreshing, refreshState: RefreshState.loading);
 
     try {
-      final result = await _engine.refreshProvider(id);
+      final result = await _engine.refreshProvider(id, apiKeys: apiKeys);
       final snapshot = result[id];
       if (snapshot != null) {
         final updated = Map<ProviderId, ProviderSnapshot>.from(state.snapshots);
@@ -169,14 +206,19 @@ class UsageNotifier extends StateNotifier<UsageState> {
   }
 
   Future<void> refreshAll() async {
+    final apiKeys = await _readApiKeys();
     final ids = _engine.getEnabledProviders();
     if (ids.isEmpty) return;
 
     state = state.copyWith(refreshState: RefreshState.loading);
     try {
-      final result = await _engine.refreshAll();
+      final result = await _engine.refreshAll(
+        providerIds: ids,
+        apiKeys: apiKeys,
+      );
       final updated =
-          Map<ProviderId, ProviderSnapshot>.from(state.snapshots)..addAll(result);
+          Map<ProviderId, ProviderSnapshot>.from(state.snapshots)
+            ..addAll(result);
       state = state.copyWith(
         snapshots: updated,
         refreshState: RefreshState.idle,

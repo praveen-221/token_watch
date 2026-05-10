@@ -1,8 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
-import 'package:token_watch/domain/entities/usage_level.dart';
 
+/// Bar chart that shows usage per provider with a colour-coded legend.
+///
+/// Each bar is tinted with the provider's brand colour.
+/// A legend below the chart maps each colour to the full provider name.
 class UsageBarChart extends StatelessWidget {
   final Map<ProviderId, double> data;
 
@@ -14,86 +17,104 @@ class UsageBarChart extends StatelessWidget {
       return const Center(child: Text('No data available'));
     }
 
-    final List<BarChartGroupData> groups = data.entries.map((e) {
-      final level = UsageLevel.fromPercent(e.value * 100);
-      final index = data.keys.toList().indexOf(e.key);
+    final theme = Theme.of(context);
+    final entries = data.entries.toList();
+
+    final List<BarChartGroupData> groups = entries.asMap().entries.map((entry) {
+      final index = entry.key;
+      final e = entry.value;
       return BarChartGroupData(
         x: index,
-        barRods: [BarChartRodData(
-          toY: e.value * 100,
-          color: level.color,
-          width: 28,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-          backDrawRodData: BackgroundBarChartRodData(
-            show: true,
-            toY: 100,
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        barRods: [
+          BarChartRodData(
+            toY: e.value * 100,
+            color: e.key.brandColor,
+            width: 32,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
           ),
-        )],
-        showingTooltipIndicators: [0],
+        ],
       );
     }).toList();
 
-    return SizedBox(
-      height: 240,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: 100,
-          barTouchData: BarTouchData(
-            enabled: true,
-            touchTooltipData: BarTouchTooltipData(
-              getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                final entryKey = data.keys.elementAt(group.x);
-                return BarTooltipItem(
-                  '${entryKey.displayName}\n${(rod.toY).toInt()}%',
-                  TextStyle(
-                    color: rod.color,
-                    fontWeight: FontWeight.bold,
+    return Column(
+      children: [
+        SizedBox(
+          height: 180,
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceEvenly,
+              maxY: 100,
+              minY: 0,
+              barTouchData: BarTouchData(
+                enabled: true,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final providerId = entries[group.x].key;
+                    return BarTooltipItem(
+                      '${providerId.displayName}\n${rod.toY.toInt()}%',
+                      TextStyle(
+                        color: providerId.brandColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              titlesData: FlTitlesData(
+                show: true,
+                bottomTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 28,
+                    interval: 25,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        '${value.toInt()}%',
+                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index < 0 || index >= data.length) return const SizedBox.shrink();
-                  final entry = data.keys.elementAt(index);
-                  final name = entry.displayName;
-                  final short = name.substring(0, name.length.clamp(0, 4));
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(short, style: Theme.of(context).textTheme.labelSmall),
-                  );
-                },
+                ),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
+              borderData: FlBorderData(show: false),
+              gridData: const FlGridData(show: false),
+              barGroups: groups,
             ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 36,
-                getTitlesWidget: (value, meta) {
-                  return Text('${value.toInt()}%', style: Theme.of(context).textTheme.labelSmall);
-                },
-              ),
-            ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-          borderData: FlBorderData(show: false),
-          gridData: const FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: 25,
-          ),
-          barGroups: groups,
         ),
-      ),
+        const SizedBox(height: 12),
+        // Legend
+        Wrap(
+          spacing: 16,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          children: entries.map((e) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: e.key.brandColor,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  e.key.displayName,
+                  style: theme.textTheme.labelSmall,
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

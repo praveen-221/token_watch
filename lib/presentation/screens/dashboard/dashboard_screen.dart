@@ -7,8 +7,10 @@ import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
 import 'package:token_watch/domain/entities/usage_level.dart';
 import 'package:token_watch/presentation/providers/usage_provider.dart';
+import 'package:token_watch/presentation/providers/settings_provider.dart';
 import 'package:token_watch/presentation/widgets/common/empty_state.dart';
 import 'package:token_watch/presentation/widgets/common/loading_widget.dart';
+import 'package:token_watch/presentation/widgets/common/provider_icon.dart';
 import 'package:token_watch/presentation/widgets/common/token_glass_card.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -39,6 +41,13 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildBody(BuildContext context, WidgetRef ref, UsageState state) {
+    final settings = ref.watch(settingsNotifierProvider);
+    
+    // Filter by enabled providers
+    final enabledSnapshots = state.snapshots.entries
+        .where((e) => settings.enabledProviders[e.key] ?? true)
+        .toList();
+    
     // Empty state
     if (!state.hasData && state.refreshState == RefreshState.idle) {
       return const TokenEmptyState(
@@ -60,7 +69,7 @@ class DashboardScreen extends ConsumerWidget {
           padding: const EdgeInsets.only(bottom: 12, top: 4),
           child: Text('Providers', style: Theme.of(context).textTheme.titleMedium),
         ),
-        ...state.snapshots.entries.map((entry) {
+        ...enabledSnapshots.map((entry) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: _ProviderTile(
@@ -134,7 +143,7 @@ class _ProviderTile extends StatelessWidget {
               // Header: icon + name + optional refresh indicator
               Row(
                 children: [
-                  Icon(providerId.icon, color: cs.primary, size: 22),
+                  ProviderIcon(providerId: providerId, radius: 11),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -149,11 +158,6 @@ class _ProviderTile extends StatelessWidget {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary),
                     ),
-                  if (!isRefreshing) ...[
-                    _UsagePill(level: sessionLevel),
-                    const SizedBox(width: 6),
-                    _UsagePill(level: weeklyLevel),
-                  ],
                 ],
               ),
               const SizedBox(height: 12),
@@ -184,30 +188,6 @@ class _ProviderTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _UsagePill extends StatelessWidget {
-  final UsageLevel level;
-  const _UsagePill({required this.level});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: level.color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        level.name,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: level.color,
-              fontWeight: FontWeight.w600,
-              fontSize: 9,
-            ),
       ),
     );
   }
@@ -248,12 +228,12 @@ class _UsageBar extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: SizedBox(
-            height: 6,
+            height: 8,
             child: LinearProgressIndicator(
               value: pct.clamp(0.0, 1.0),
               backgroundColor: cs.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(level.color),
-              minHeight: 6,
+              minHeight: 8,
             ),
           ),
         ),

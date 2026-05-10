@@ -15,14 +15,27 @@ class FetchOrchestrator {
     _settings = settings ?? SettingsConfig.defaultConfig();
   }
 
-  Future<Map<ProviderId, ProviderSnapshot>> refreshAll({List<ProviderId>? providerIds}) async {
+  Future<Map<ProviderId, ProviderSnapshot>> refreshAll({
+    List<ProviderId>? providerIds,
+    Map<ProviderId, String>? apiKeys,
+  }) async {
     final ids = providerIds ?? ProviderId.values;
     final futures = ids.map((id) async {
       final adapter = registry.create(id);
       if (adapter == null) {
         return MapEntry(id, ProviderSnapshot.empty(id));
       }
-      final context = FetchContext(providerId: id, sourceMode: adapter.defaultSource, credentials: <String, String>{}, sessionId: null);
+      final credentials = <String, String>{};
+      final apiKey = apiKeys?[id];
+      if (apiKey != null && apiKey.isNotEmpty) {
+        credentials['api_key'] = apiKey;
+      }
+      final context = FetchContext(
+        providerId: id,
+        sourceMode: adapter.defaultSource,
+        credentials: credentials,
+        sessionId: null,
+      );
       try {
         final snap = await adapter.fetch(context);
         return MapEntry(id, snap);

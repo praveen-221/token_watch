@@ -12,6 +12,8 @@ class ProviderSnapshot {
   final int? sessionLimit;
   final int? weeklyUsed;
   final int? weeklyLimit;
+  final int? monthlyUsed;
+  final int? monthlyLimit;
   final DateTime? lastReset;
   final DateTime? fetchedAt;
   final String? sourceUsed;
@@ -23,6 +25,8 @@ class ProviderSnapshot {
     this.sessionLimit,
     this.weeklyUsed,
     this.weeklyLimit,
+    this.monthlyUsed,
+    this.monthlyLimit,
     this.lastReset,
     this.fetchedAt,
     this.sourceUsed,
@@ -44,8 +48,15 @@ class ProviderSnapshot {
     return ratio.clamp(0.0, 1.0);
   }
 
+  double get monthlyPercent {
+    if (monthlyUsed == null || monthlyLimit == null || monthlyLimit == 0) return 0.0;
+    final ratio = monthlyUsed! / monthlyLimit!;
+    return ratio.clamp(0.0, 1.0);
+  }
+
   UsageLevel get sessionLevel => UsageLevel.fromPercent(sessionPercent * 100);
   UsageLevel get weeklyLevel => UsageLevel.fromPercent(weeklyPercent * 100);
+  UsageLevel get monthlyLevel => UsageLevel.fromPercent(monthlyPercent * 100);
 
   bool get hasData => sessionUsed != null || sessionLimit != null ||
       weeklyUsed != null || weeklyLimit != null ||
@@ -58,6 +69,8 @@ class ProviderSnapshot {
     int? sessionLimit,
     int? weeklyUsed,
     int? weeklyLimit,
+    int? monthlyUsed,
+    int? monthlyLimit,
     DateTime? lastReset,
     DateTime? fetchedAt,
     String? sourceUsed,
@@ -69,6 +82,8 @@ class ProviderSnapshot {
       sessionLimit: sessionLimit ?? this.sessionLimit,
       weeklyUsed: weeklyUsed ?? this.weeklyUsed,
       weeklyLimit: weeklyLimit ?? this.weeklyLimit,
+      monthlyUsed: monthlyUsed ?? this.monthlyUsed,
+      monthlyLimit: monthlyLimit ?? this.monthlyLimit,
       lastReset: lastReset ?? this.lastReset,
       fetchedAt: fetchedAt ?? this.fetchedAt,
       sourceUsed: sourceUsed ?? this.sourceUsed,
@@ -90,6 +105,8 @@ class ProviderSnapshot {
       sessionLimit: json['sessionLimit'] as int?,
       weeklyUsed: json['weeklyUsed'] as int?,
       weeklyLimit: json['weeklyLimit'] as int?,
+      monthlyUsed: json['monthlyUsed'] as int?,
+      monthlyLimit: json['monthlyLimit'] as int?,
       lastReset: json['lastReset'] != null ? DateTime.parse(json['lastReset'] as String) : null,
       fetchedAt: json['fetchedAt'] != null ? DateTime.parse(json['fetchedAt'] as String) : null,
       sourceUsed: json['sourceUsed'] as String?,
@@ -104,6 +121,8 @@ class ProviderSnapshot {
       'sessionLimit': sessionLimit,
       'weeklyUsed': weeklyUsed,
       'weeklyLimit': weeklyLimit,
+      'monthlyUsed': monthlyUsed,
+      'monthlyLimit': monthlyLimit,
       'lastReset': lastReset?.toIso8601String(),
       'fetchedAt': fetchedAt?.toIso8601String(),
       'sourceUsed': sourceUsed,

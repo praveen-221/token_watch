@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
 import 'package:token_watch/domain/entities/usage_level.dart';
+import 'package:token_watch/presentation/widgets/common/provider_icon.dart';
 
 class ProviderCard extends StatelessWidget {
   final ProviderId providerId;
@@ -38,7 +39,7 @@ class ProviderCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(providerId.icon, color: cs.primary, size: 20),
+                ProviderIcon(providerId: providerId, radius: 10),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(

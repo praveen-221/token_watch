@@ -1,0 +1,25 @@
+name: iOS Build
+on:
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  ios-build:
+    name: iOS Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (release)
+        run: flutter build ios --release --no-codesign
+
+# Note: iOS build requires macOS runner

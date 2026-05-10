@@ -86,7 +86,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build iOS (Release)
+      - name: Build iOS Release
         run: flutter build ios --release --no-codesign
 
       - name: Package iOS IPA

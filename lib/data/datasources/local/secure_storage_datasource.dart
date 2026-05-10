@@ -33,7 +33,8 @@ class SecureStorageDatasource {
       if (entry.key.startsWith(_prefix)) {
         final key = entry.key.substring(_prefix.length);
         if (key.endsWith(_apiKeySuffix)) {
-          final providerId = key.substring(0, key.length - _apiKeySuffix.length);
+          final providerId =
+              key.substring(0, key.length - _apiKeySuffix.length);
           result[providerId] = entry.value;
         }
       }

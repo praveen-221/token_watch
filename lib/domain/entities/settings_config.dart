@@ -34,7 +34,13 @@ class SettingsConfig {
     );
   }
 
-  SettingsConfig copyWith({Map<ProviderId, bool>? enabledProviders, Duration? refreshInterval, Duration? ttl, bool? notificationsEnabled, double? alertThreshold, ThemeMode? themeMode}) {
+  SettingsConfig copyWith(
+      {Map<ProviderId, bool>? enabledProviders,
+      Duration? refreshInterval,
+      Duration? ttl,
+      bool? notificationsEnabled,
+      double? alertThreshold,
+      ThemeMode? themeMode}) {
     return SettingsConfig(
       enabledProviders: enabledProviders ?? this.enabledProviders,
       refreshInterval: refreshInterval ?? this.refreshInterval,

@@ -21,13 +21,14 @@ class ApiKeysState {
   const ApiKeysState({required this.keys, required this.saving});
 
   factory ApiKeysState.initial() {
-    return ApiKeysState(
+    return const ApiKeysState(
       keys: {},
       saving: {},
     );
   }
 
-  ApiKeysState copyWith({Map<String, String?>? keys, Map<String, bool>? saving}) {
+  ApiKeysState copyWith(
+      {Map<String, String?>? keys, Map<String, bool>? saving}) {
     return ApiKeysState(
       keys: keys ?? this.keys,
       saving: saving ?? this.saving,

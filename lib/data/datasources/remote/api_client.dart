@@ -16,7 +16,8 @@ class ApiClient {
     'Accept': 'application/json',
   };
 
-  Future<Map<String, dynamic>> get(String url, {Map<String, String>? headers}) async {
+  Future<Map<String, dynamic>> get(String url,
+      {Map<String, String>? headers}) async {
     try {
       final uri = Uri.parse(url);
       final response = await _client.get(uri, headers: {
@@ -29,14 +30,17 @@ class ApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> post(String url, {Map<String, String>? headers, Map<String, dynamic>? body}) async {
+  Future<Map<String, dynamic>> post(String url,
+      {Map<String, String>? headers, Map<String, dynamic>? body}) async {
     try {
       final uri = Uri.parse(url);
       final response = await _client
-          .post(uri, headers: {
-            ..._defaultHeaders,
-            if (headers != null) ...headers,
-          }, body: jsonEncode(body ?? {}))
+          .post(uri,
+              headers: {
+                ..._defaultHeaders,
+                if (headers != null) ...headers,
+              },
+              body: jsonEncode(body ?? {}))
           .timeout(_defaultTimeout);
       return _handleResponse(response);
     } on TimeoutException {
@@ -65,8 +69,10 @@ class ApiClient {
           retrySeconds = json['retryAfter'] as int?;
         }
       } catch (_) {}
-      final retryAfter = retrySeconds != null ? Duration(seconds: retrySeconds) : null;
-      throw RateLimitError(status, 'Rate limit exceeded', retryAfter: retryAfter);
+      final retryAfter =
+          retrySeconds != null ? Duration(seconds: retrySeconds) : null;
+      throw RateLimitError(status, 'Rate limit exceeded',
+          retryAfter: retryAfter);
     }
 
     // Auth errors

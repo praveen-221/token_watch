@@ -14,7 +14,8 @@ class ApiStrategy extends FetchStrategy {
 
   @override
   bool isAvailable(FetchContext context) {
-    return context.credentials.containsKey('apiKey') || context.credentials.containsKey('token');
+    return context.credentials.containsKey('apiKey') ||
+        context.credentials.containsKey('token');
   }
 
   @override
@@ -28,7 +29,9 @@ class ApiStrategy extends FetchStrategy {
   bool shouldFallback(Object error, FetchContext context) {
     // If auth error, do not fallback to other strategies
     final msg = error.toString().toLowerCase();
-    if (msg.contains('auth') || msg.contains('unauthorized') || msg.contains('forbidden')) {
+    if (msg.contains('auth') ||
+        msg.contains('unauthorized') ||
+        msg.contains('forbidden')) {
       return false;
     }
     return true;

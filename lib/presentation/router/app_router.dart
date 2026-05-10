@@ -123,29 +123,31 @@ class AppRouter {
   // Singleton GoRouter — MUST NOT be recreated on rebuilds,
   // otherwise navigation state is lost and user is sent back to initialLocation.
   static final GoRouter _router = GoRouter(
-        initialLocation: '/dashboard',
+    initialLocation: '/dashboard',
+    routes: [
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
         routes: [
-          ShellRoute(
-            builder: (context, state, child) => AppShell(child: child),
-            routes: [
-              GoRoute(path: '/dashboard', builder: (c, s) => const DashboardScreen()),
-              GoRoute(path: '/analytics', builder: (c, s) => const AnalyticsScreen()),
-              GoRoute(path: '/settings', builder: (c, s) => const SettingsScreen()),
-              GoRoute(
-                path: '/settings/api-keys',
-                builder: (c, s) => const ApiKeyManagementScreen(),
-              ),
-              GoRoute(
-                path: '/provider/:id',
-                builder: (c, s) {
-                  final id = s.pathParameters['id'] ?? '';
-                  return ProviderDetailScreen(providerIdString: id);
-                },
-              ),
-            ],
+          GoRoute(
+              path: '/dashboard', builder: (c, s) => const DashboardScreen()),
+          GoRoute(
+              path: '/analytics', builder: (c, s) => const AnalyticsScreen()),
+          GoRoute(path: '/settings', builder: (c, s) => const SettingsScreen()),
+          GoRoute(
+            path: '/settings/api-keys',
+            builder: (c, s) => const ApiKeyManagementScreen(),
+          ),
+          GoRoute(
+            path: '/provider/:id',
+            builder: (c, s) {
+              final id = s.pathParameters['id'] ?? '';
+              return ProviderDetailScreen(providerIdString: id);
+            },
           ),
         ],
-      );
+      ),
+    ],
+  );
 
   static GoRouter get router => _router;
 }

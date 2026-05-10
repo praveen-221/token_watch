@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
-import 'package:token_watch/presentation/providers/usage_provider.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
 
 final analyticsNotifierProvider =
@@ -18,8 +16,7 @@ final usageTrendProvider = Provider<List<UsageDataPoint>>((ref) {
   return state.trendData;
 });
 
-final usageBreakdownProvider =
-    Provider<Map<ProviderId, double>>((ref) {
+final usageBreakdownProvider = Provider<Map<ProviderId, double>>((ref) {
   final state = ref.watch(analyticsNotifierProvider);
   return state.usageByProvider;
 });
@@ -58,7 +55,6 @@ class AnalyticsState {
   });
 
   factory AnalyticsState.initial() {
-    final now = DateTime.now();
     return AnalyticsState(
       selectedPeriod: AnalyticsPeriod.week,
       usageByProvider: const {},
@@ -109,10 +105,10 @@ class AnalyticsNotifier extends StateNotifier<AnalyticsState> {
     }
 
     // Total stats
-    final totalTokens = snapshots.values.fold(
-        0, (sum, s) => sum + (s.sessionUsed ?? 0));
-    final totalCost = snapshots.values.fold(
-        0.0, (sum, s) => sum + (s.estimatedCost ?? 0.0));
+    final totalTokens =
+        snapshots.values.fold(0, (sum, s) => sum + (s.sessionUsed ?? 0));
+    final totalCost =
+        snapshots.values.fold(0.0, (sum, s) => sum + (s.estimatedCost ?? 0.0));
 
     // Find peak usage provider
     ProviderId? peakProvider;
@@ -147,9 +143,7 @@ class AnalyticsNotifier extends StateNotifier<AnalyticsState> {
       totalCost: totalCost,
       totalTokens: totalTokens,
       totalProviders: snapshots.length,
-      peakUsageDate: peakProvider != null
-          ? DateTime.now()
-          : null,
+      peakUsageDate: peakProvider != null ? DateTime.now() : null,
     );
   }
 

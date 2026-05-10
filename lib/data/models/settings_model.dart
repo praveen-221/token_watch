@@ -34,7 +34,8 @@ class SettingsModel {
       ttl: Duration(minutes: ttlMinutes),
       notificationsEnabled: notificationsEnabled,
       alertThreshold: alertThreshold,
-      themeMode: ThemeMode.values[themeModeIndex.clamp(0, ThemeMode.values.length - 1)],
+      themeMode: ThemeMode
+          .values[themeModeIndex.clamp(0, ThemeMode.values.length - 1)],
     );
   }
 

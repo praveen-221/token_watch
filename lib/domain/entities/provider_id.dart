@@ -18,12 +18,12 @@ enum ProviderId {
 
   /// Well-known brand colors for each AI provider.
   Color get brandColor => switch (this) {
-        openai => const Color(0xFF10A37F),    // OpenAI green
-        anthropic => const Color(0xFFD4A574),  // Anthropic / Claude warm beige
-        google => const Color(0xFF4285F4),     // Google blue
-        copilot => const Color(0xFF6E46B4),    // GitHub Copilot purple
+        openai => const Color(0xFF10A37F), // OpenAI green
+        anthropic => const Color(0xFFD4A574), // Anthropic / Claude warm beige
+        google => const Color(0xFF4285F4), // Google blue
+        copilot => const Color(0xFF6E46B4), // GitHub Copilot purple
         openrouter => const Color(0xFFFF6B35), // OpenRouter orange
-        deepseek => const Color(0xFF4F46E5),   // DeepSeek indigo
+        deepseek => const Color(0xFF4F46E5), // DeepSeek indigo
       };
 
   /// First 1-2 letters to show in avatar when no logo is available.

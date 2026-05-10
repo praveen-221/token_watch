@@ -29,11 +29,13 @@ class TokenEmptyState extends StatelessWidget {
               color: theme.colorScheme.outline,
             ),
             const SizedBox(height: 16),
-            Text(title, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+            Text(title,
+                style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onAction != null) ...[

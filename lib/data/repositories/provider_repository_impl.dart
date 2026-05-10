@@ -13,9 +13,13 @@ class ProviderRepositoryImpl {
   final SecureStorageDatasource secureStorageDatasource;
   final ApiClient apiClient;
 
-  ProviderRepositoryImpl({required this.hiveDatasource, required this.secureStorageDatasource, required this.apiClient});
+  ProviderRepositoryImpl(
+      {required this.hiveDatasource,
+      required this.secureStorageDatasource,
+      required this.apiClient});
 
-  Future<ProviderSnapshot> fetchProviderUsage(ProviderId id, {DateTime? context}) async {
+  Future<ProviderSnapshot> fetchProviderUsage(ProviderId id,
+      {DateTime? context}) async {
     final apiKey = await secureStorageDatasource.getApiKey(id);
     if (apiKey == null) {
       throw AuthError(401, 'Missing API key for provider $id');
@@ -44,7 +48,8 @@ class ProviderRepositoryImpl {
           weeklyUsed: item['weeklyUsed'] ?? 0,
           weeklyLimit: item['weeklyLimit'] ?? 0,
           estimatedCost: (item['estimatedCost'] ?? 0).toDouble(),
-          timestamp: DateTime.parse(item['timestamp'] ?? DateTime.now().toIso8601String()),
+          timestamp: DateTime.parse(
+              item['timestamp'] ?? DateTime.now().toIso8601String()),
           sourceUsed: item['sourceUsed'] ?? '',
         );
         await hiveDatasource.saveUsage(usage);
@@ -59,7 +64,8 @@ class ProviderRepositoryImpl {
     return model?.toEntity();
   }
 
-  Future<List<UsageModel>> getUsageHistory(ProviderId id, {DateTime? from, DateTime? to}) async {
+  Future<List<UsageModel>> getUsageHistory(ProviderId id,
+      {DateTime? from, DateTime? to}) async {
     return await hiveDatasource.getUsageHistory(id, from: from, to: to);
   }
 

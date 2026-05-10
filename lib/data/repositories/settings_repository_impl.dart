@@ -3,7 +3,8 @@ import 'package:token_watch/data/datasources/local/hive_datasource.dart';
 import 'package:token_watch/data/datasources/local/secure_storage_datasource.dart';
 import 'package:token_watch/data/models/settings_model.dart';
 import 'package:token_watch/domain/entities/settings_config.dart';
-import 'package:token_watch/data/datasources/remote/api_client.dart' as api_client;
+import 'package:token_watch/data/datasources/remote/api_client.dart'
+    as api_client;
 
 typedef ProviderId = String;
 
@@ -11,9 +12,13 @@ class SettingsRepositoryImpl {
   final HiveDatasource hiveDatasource;
   final SecureStorageDatasource secureStorageDatasource;
   final api_client.ApiClient apiClient;
-  final StreamController<SettingsConfig> _controller = StreamController<SettingsConfig>.broadcast();
+  final StreamController<SettingsConfig> _controller =
+      StreamController<SettingsConfig>.broadcast();
 
-  SettingsRepositoryImpl({required this.hiveDatasource, required this.secureStorageDatasource, required this.apiClient}) {
+  SettingsRepositoryImpl(
+      {required this.hiveDatasource,
+      required this.secureStorageDatasource,
+      required this.apiClient}) {
     _init();
   }
 

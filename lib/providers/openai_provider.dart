@@ -51,7 +51,8 @@ class OpenAIProvider extends ProviderAdapter {
   Future<ProviderSnapshot> fetch(FetchContext context) async {
     final apiKey = context.credentials['api_key'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw const OpenAIFetchError('API key not configured for OpenAI provider');
+      throw const OpenAIFetchError(
+          'API key not configured for OpenAI provider');
     }
 
     final now = DateTime.now();
@@ -100,7 +101,8 @@ class OpenAIProvider extends ProviderAdapter {
     ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 401 || response.statusCode == 403) {
-      throw const OpenAIFetchError('Authentication failed. Check your API key.');
+      throw const OpenAIFetchError(
+          'Authentication failed. Check your API key.');
     }
 
     if (response.statusCode == 429) {
@@ -108,7 +110,8 @@ class OpenAIProvider extends ProviderAdapter {
     }
 
     if (response.statusCode != 200) {
-      throw OpenAIFetchError('API returned ${response.statusCode}: ${response.body}');
+      throw OpenAIFetchError(
+          'API returned ${response.statusCode}: ${response.body}');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;

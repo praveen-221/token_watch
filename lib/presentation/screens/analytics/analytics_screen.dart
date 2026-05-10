@@ -5,15 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:token_watch/domain/entities/provider_id.dart';
 import 'package:token_watch/domain/entities/provider_snapshot.dart';
-import 'package:token_watch/domain/entities/usage_level.dart';
 import 'package:token_watch/presentation/providers/analytics_provider.dart';
 import 'package:token_watch/presentation/providers/settings_provider.dart';
 import 'package:token_watch/presentation/providers/usage_provider.dart';
-import 'package:token_watch/presentation/widgets/common/provider_icon.dart';
 import 'package:token_watch/presentation/widgets/common/token_glass_card.dart';
 import 'package:token_watch/presentation/widgets/charts/trend_line_chart.dart';
 import 'package:token_watch/presentation/widgets/charts/usage_bar_chart.dart';
-import 'package:intl/intl.dart';
 
 class AnalyticsScreen extends ConsumerStatefulWidget {
   const AnalyticsScreen({super.key});
@@ -36,8 +33,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
 
   void _refreshAndCompute() {
     final usageState = ref.read(usageStateProvider);
-    ref.read(analyticsNotifierProvider.notifier).computeFromSnapshots(
-        usageState.snapshots);
+    ref
+        .read(analyticsNotifierProvider.notifier)
+        .computeFromSnapshots(usageState.snapshots);
   }
 
   @override
@@ -54,8 +52,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
 
     // Re-compute analytics whenever snapshots change
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(analyticsNotifierProvider.notifier).computeFromSnapshots(
-          filteredSnapshots);
+      ref
+          .read(analyticsNotifierProvider.notifier)
+          .computeFromSnapshots(filteredSnapshots);
     });
 
     final days = _daysForPeriod(_selectedPeriod);
@@ -66,11 +65,13 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       appBar: AppBar(
         title: const Text('Analytics'),
         flexibleSpace: ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(16)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -106,10 +107,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 children: [
                   Text(
                     'Usage by Provider',
-                    style:
-                        Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -125,14 +125,12 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 32),
                         child: Text(
                           'No usage data yet',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                         ),
                       ),
                     )
@@ -151,17 +149,17 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                   children: [
                     Text(
                       'Usage Trend — $periodLabel',
-                      style:
-                          Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     const SizedBox(height: 16),
                     TrendLineChart(spots: spots, totalDays: days),
                   ],
                 ),
               ),
-            if (_selectedPeriod == AnalyticsPeriod.week) const SizedBox(height: 16),
+            if (_selectedPeriod == AnalyticsPeriod.week)
+              const SizedBox(height: 16),
 
             // Summary stats
             TokenGlassCard(
@@ -170,23 +168,17 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 children: [
                   Text(
                     'Summary',
-                    style:
-                        Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStat(
-                          context,
-                          'Total Tokens',
-                          _formatNumber(
-                              analyticsState.totalTokens)),
-                      _buildStat(
-                          context,
-                          'Est. Cost',
+                      _buildStat(context, 'Total Tokens',
+                          _formatNumber(analyticsState.totalTokens)),
+                      _buildStat(context, 'Est. Cost',
                           '\$${analyticsState.totalCost.toStringAsFixed(4)}'),
                       _buildStat(context, 'Providers',
                           analyticsState.totalProviders.toString()),
@@ -195,8 +187,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 ],
               ),
             ),
-
-            ],
+          ],
         ),
       ),
     );
@@ -222,7 +213,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     return n.toString();
   }
 
-  Map<ProviderId, double> _getUsageByProvider(Map<ProviderId, ProviderSnapshot> snapshots) {
+  Map<ProviderId, double> _getUsageByProvider(
+      Map<ProviderId, ProviderSnapshot> snapshots) {
     final map = <ProviderId, double>{};
     for (final entry in snapshots.entries) {
       map[entry.key] = entry.value.sessionPercent;
@@ -230,7 +222,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     return map;
   }
 
-  List<FlSpot> _generateTrendSpots(Map<ProviderId, ProviderSnapshot> snapshots, int days) {
+  List<FlSpot> _generateTrendSpots(
+      Map<ProviderId, ProviderSnapshot> snapshots, int days) {
     if (snapshots.isEmpty) {
       return List.generate(days, (i) => FlSpot(i.toDouble(), 0.0));
     }
@@ -243,9 +236,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
 
     for (int i = 0; i < days; i++) {
       final x = i.toDouble();
-      final y = totalUsed > 0
-          ? (totalUsed.toDouble() / days) * (i + 1)
-          : 0.0;
+      final y = totalUsed > 0 ? (totalUsed.toDouble() / days) * (i + 1) : 0.0;
       points.add(FlSpot(x, y));
     }
 
@@ -268,67 +259,5 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       case AnalyticsPeriod.week:
         return 'This Week';
     }
-  }
-}
-
-class _ProviderDetailRow extends StatelessWidget {
-  final ProviderId providerId;
-  final ProviderSnapshot snapshot;
-  const _ProviderDetailRow({required this.providerId, required this.snapshot});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final percent = snapshot.sessionPercent;
-    final level = snapshot.sessionLevel;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          ProviderIcon(providerId: providerId, radius: 9),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              providerId.displayName,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
-          // Session usage bar (colored by usage level)
-          SizedBox(
-            width: 80,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                value: percent.clamp(0.0, 1.0),
-                backgroundColor: cs.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(level.color),
-                minHeight: 8,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Percentage text
-          SizedBox(
-            width: 42,
-            child: Text(
-              '${(percent * 100).toInt()}%',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: level.color,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.end,
-            ),
-          ),
-          const SizedBox(width: 4),
-          // Used / Limit
-          Text(
-            '${snapshot.sessionUsed ?? 0}/${snapshot.sessionLimit ?? 0}',
-            style:
-                theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
   }
 }

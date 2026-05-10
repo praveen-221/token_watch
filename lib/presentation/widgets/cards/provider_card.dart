@@ -54,14 +54,17 @@ class ProviderCard extends StatelessWidget {
                   SizedBox(
                     width: 14,
                     height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: cs.primary),
                   ),
               ],
             ),
             const SizedBox(height: 10),
-            _buildUsageBar(context, 'Session', snapshot.sessionPercent, sessionLevel),
+            _buildUsageBar(
+                context, 'Session', snapshot.sessionPercent, sessionLevel),
             const SizedBox(height: 6),
-            _buildUsageBar(context, 'Weekly', snapshot.weeklyPercent, weeklyLevel),
+            _buildUsageBar(
+                context, 'Weekly', snapshot.weeklyPercent, weeklyLevel),
             if (snapshot.estimatedCost != null) ...[
               const SizedBox(height: 6),
               Text(
@@ -90,7 +93,11 @@ class ProviderCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+            Text(label,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(color: cs.onSurfaceVariant)),
             Text(
               '${(percent * 100).toInt()}%',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(

@@ -73,13 +73,16 @@ class UsageBarChart extends StatelessWidget {
                     getTitlesWidget: (value, meta) {
                       return Text(
                         '${value.toInt()}%',
-                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
+                        style:
+                            theme.textTheme.labelSmall?.copyWith(fontSize: 9),
                       );
                     },
                   ),
                 ),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(show: false),
               gridData: const FlGridData(show: false),

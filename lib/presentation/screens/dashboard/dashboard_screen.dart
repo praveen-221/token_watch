@@ -24,11 +24,13 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Token Watch'),
         flexibleSpace: ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(16)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -42,12 +44,12 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildBody(BuildContext context, WidgetRef ref, UsageState state) {
     final settings = ref.watch(settingsNotifierProvider);
-    
+
     // Filter by enabled providers
     final enabledSnapshots = state.snapshots.entries
         .where((e) => settings.enabledProviders[e.key] ?? true)
         .toList();
-    
+
     // Empty state
     if (!state.hasData && state.refreshState == RefreshState.idle) {
       return const TokenEmptyState(
@@ -67,7 +69,8 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 12, top: 4),
-          child: Text('Providers', style: Theme.of(context).textTheme.titleMedium),
+          child:
+              Text('Providers', style: Theme.of(context).textTheme.titleMedium),
         ),
         ...enabledSnapshots.map((entry) {
           return Padding(
@@ -148,7 +151,8 @@ class _ProviderTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       providerId.displayName,
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -156,7 +160,8 @@ class _ProviderTile extends StatelessWidget {
                     SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary),
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: cs.primary),
                     ),
                 ],
               ),
@@ -208,7 +213,8 @@ class _UsageBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final pct = (used != null && limit != null && limit! > 0) ? used! / limit! : 0.0;
+    final pct =
+        (used != null && limit != null && limit! > 0) ? used! / limit! : 0.0;
     final cs = theme.colorScheme;
 
     return Column(
@@ -217,10 +223,13 @@ class _UsageBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+            Text(label,
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(color: cs.onSurfaceVariant)),
             Text(
               '${(pct * 100).toInt()}%',
-              style: theme.textTheme.labelSmall?.copyWith(color: level.color, fontWeight: FontWeight.w600),
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: level.color, fontWeight: FontWeight.w600),
             ),
           ],
         ),

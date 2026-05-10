@@ -13,10 +13,12 @@ class ApiKeyManagementScreen extends ConsumerStatefulWidget {
   const ApiKeyManagementScreen({super.key});
 
   @override
-  ConsumerState<ApiKeyManagementScreen> createState() => _ApiKeyManagementScreenState();
+  ConsumerState<ApiKeyManagementScreen> createState() =>
+      _ApiKeyManagementScreenState();
 }
 
-class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen> {
+class _ApiKeyManagementScreenState
+    extends ConsumerState<ApiKeyManagementScreen> {
   final Map<ProviderId, TextEditingController> _controllers = {};
   final Map<ProviderId, bool> _obscureText = {};
 
@@ -60,11 +62,13 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
       appBar: AppBar(
         title: const Text('API Keys'),
         flexibleSpace: ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(16)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -83,7 +87,8 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
   Widget _buildProviderKeyCard(ProviderId provider) {
     final controller = _controllers[provider]!;
     final obscured = _obscureText[provider] ?? true;
-    final isSaving = ref.watch(apiKeysNotifierProvider.select((s) => s.isSaving(provider.id)));
+    final isSaving = ref
+        .watch(apiKeysNotifierProvider.select((s) => s.isSaving(provider.id)));
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -99,7 +104,10 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
                 const SizedBox(width: 8),
                 Text(
                   provider.displayName,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -112,8 +120,10 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
                 border: const OutlineInputBorder(),
                 isDense: true,
                 suffixIcon: IconButton(
-                  icon: Icon(obscured ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () => setState(() => _obscureText[provider] = !obscured),
+                  icon:
+                      Icon(obscured ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () =>
+                      setState(() => _obscureText[provider] = !obscured),
                 ),
               ),
             ),
@@ -131,13 +141,21 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
                         onPressed: () {
                           final key = controller.text.trim();
                           if (key.isNotEmpty) {
-                            ref.read(apiKeysNotifierProvider.notifier).saveKey(provider.id, key);
+                            ref
+                                .read(apiKeysNotifierProvider.notifier)
+                                .saveKey(provider.id, key);
                             // Auto-enable the provider when API key is saved
-                            ref.read(settingsNotifierProvider.notifier).toggleProvider(provider, true);
+                            ref
+                                .read(settingsNotifierProvider.notifier)
+                                .toggleProvider(provider, true);
                             // Trigger a refresh to fetch usage data
-                            ref.read(usageNotifierProvider.notifier).refreshAll();
+                            ref
+                                .read(usageNotifierProvider.notifier)
+                                .refreshAll();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${provider.displayName} API key saved and enabled')),
+                              SnackBar(
+                                  content: Text(
+                                      '${provider.displayName} API key saved and enabled')),
                             );
                           }
                         },
@@ -153,12 +171,14 @@ class _ApiKeyManagementScreenState extends ConsumerState<ApiKeyManagementScreen>
   }
 
   Widget _securityNotice(BuildContext context) {
-    return TokenGlassCard(
+    return const TokenGlassCard(
       child: Row(
-        children: const [
+        children: [
           Icon(Icons.shield_outlined),
           SizedBox(width: 8),
-          Expanded(child: Text('Your API keys are stored securely. This app uses device-level encryption.')),
+          Expanded(
+              child: Text(
+                  'Your API keys are stored securely. This app uses device-level encryption.')),
         ],
       ),
     );

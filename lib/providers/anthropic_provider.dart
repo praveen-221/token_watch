@@ -51,7 +51,8 @@ class AnthropicProvider extends ProviderAdapter {
   Future<ProviderSnapshot> fetch(FetchContext context) async {
     final apiKey = context.credentials['api_key'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw const AnthropicFetchError('API key not configured for Anthropic provider');
+      throw const AnthropicFetchError(
+          'API key not configured for Anthropic provider');
     }
 
     // Anthropic does not expose a direct usage/tokens endpoint.
@@ -59,7 +60,7 @@ class AnthropicProvider extends ProviderAdapter {
     // must be done via the Anthropic Console (console.anthropic.com).
     // Future implementation could integrate with Anthropic's billing API
     // if/when they expose usage data programmatically.
-    return ProviderSnapshot(
+    final snapshot = ProviderSnapshot(
       providerId: ProviderId.anthropic,
       fetchedAt: DateTime.now(),
       sourceUsed: 'api',
@@ -68,6 +69,17 @@ class AnthropicProvider extends ProviderAdapter {
       sessionLimit: 200000, // Default: 200K tokens (Claude 3.5 Sonnet context)
       weeklyUsed: 0,
       weeklyLimit: 1000000, // Default: 1M tokens/week
+    );
+    final cost = await estimateCost(snapshot);
+    return ProviderSnapshot(
+      providerId: snapshot.providerId,
+      fetchedAt: snapshot.fetchedAt,
+      sourceUsed: snapshot.sourceUsed,
+      estimatedCost: cost,
+      sessionUsed: snapshot.sessionUsed,
+      sessionLimit: snapshot.sessionLimit,
+      weeklyUsed: snapshot.weeklyUsed,
+      weeklyLimit: snapshot.weeklyLimit,
     );
   }
 

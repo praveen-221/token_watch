@@ -34,7 +34,8 @@ class ProviderRegistry {
   static final Map<ProviderId, ProviderDescriptor> _descriptors = {};
   static final Map<ProviderId, ProviderAdapter Function()> _factories = {};
 
-  static void register(ProviderId id, ProviderDescriptor descriptor, ProviderAdapter Function() factory) {
+  static void register(ProviderId id, ProviderDescriptor descriptor,
+      ProviderAdapter Function() factory) {
     _descriptors[id] = descriptor;
     _factories[id] = factory;
   }

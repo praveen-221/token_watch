@@ -13,7 +13,8 @@ class WebStrategy extends FetchStrategy {
   @override
   bool isAvailable(FetchContext context) {
     // Check for presence of a generic token/cookie indicator in credentials
-    return context.credentials.containsKey('cookie') || context.credentials.containsKey('session');
+    return context.credentials.containsKey('cookie') ||
+        context.credentials.containsKey('session');
   }
 
   @override

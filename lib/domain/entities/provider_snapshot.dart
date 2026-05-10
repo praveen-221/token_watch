@@ -33,23 +33,27 @@ class ProviderSnapshot {
     this.estimatedCost,
   });
 
-  static const ProviderSnapshot emptyProvider = ProviderSnapshot(providerId: ProviderId.openai);
+  static const ProviderSnapshot emptyProvider =
+      ProviderSnapshot(providerId: ProviderId.openai);
 
   // Percentages as 0.0 - 1.0
   double get sessionPercent {
-    if (sessionUsed == null || sessionLimit == null || sessionLimit == 0) return 0.0;
+    if (sessionUsed == null || sessionLimit == null || sessionLimit == 0)
+      return 0.0;
     final ratio = sessionUsed! / sessionLimit!;
     return ratio.clamp(0.0, 1.0);
   }
 
   double get weeklyPercent {
-    if (weeklyUsed == null || weeklyLimit == null || weeklyLimit == 0) return 0.0;
+    if (weeklyUsed == null || weeklyLimit == null || weeklyLimit == 0)
+      return 0.0;
     final ratio = weeklyUsed! / weeklyLimit!;
     return ratio.clamp(0.0, 1.0);
   }
 
   double get monthlyPercent {
-    if (monthlyUsed == null || monthlyLimit == null || monthlyLimit == 0) return 0.0;
+    if (monthlyUsed == null || monthlyLimit == null || monthlyLimit == 0)
+      return 0.0;
     final ratio = monthlyUsed! / monthlyLimit!;
     return ratio.clamp(0.0, 1.0);
   }
@@ -58,10 +62,15 @@ class ProviderSnapshot {
   UsageLevel get weeklyLevel => UsageLevel.fromPercent(weeklyPercent * 100);
   UsageLevel get monthlyLevel => UsageLevel.fromPercent(monthlyPercent * 100);
 
-  bool get hasData => sessionUsed != null || sessionLimit != null ||
-      weeklyUsed != null || weeklyLimit != null ||
-      lastReset != null || fetchedAt != null ||
-      sourceUsed != null || estimatedCost != null;
+  bool get hasData =>
+      sessionUsed != null ||
+      sessionLimit != null ||
+      weeklyUsed != null ||
+      weeklyLimit != null ||
+      lastReset != null ||
+      fetchedAt != null ||
+      sourceUsed != null ||
+      estimatedCost != null;
 
   ProviderSnapshot copyWith({
     ProviderId? providerId,
@@ -107,8 +116,12 @@ class ProviderSnapshot {
       weeklyLimit: json['weeklyLimit'] as int?,
       monthlyUsed: json['monthlyUsed'] as int?,
       monthlyLimit: json['monthlyLimit'] as int?,
-      lastReset: json['lastReset'] != null ? DateTime.parse(json['lastReset'] as String) : null,
-      fetchedAt: json['fetchedAt'] != null ? DateTime.parse(json['fetchedAt'] as String) : null,
+      lastReset: json['lastReset'] != null
+          ? DateTime.parse(json['lastReset'] as String)
+          : null,
+      fetchedAt: json['fetchedAt'] != null
+          ? DateTime.parse(json['fetchedAt'] as String)
+          : null,
       sourceUsed: json['sourceUsed'] as String?,
       estimatedCost: (json['estimatedCost'] as num?)?.toDouble(),
     );

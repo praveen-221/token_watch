@@ -39,7 +39,8 @@ class HivePersistenceService {
   ProviderSnapshot? loadSnapshot(ProviderId id) {
     final data = _snapshotBox?.get(id.id);
     if (data == null) return null;
-    return ProviderSnapshot.fromJson(jsonDecode(data as String) as Map<String, dynamic>);
+    return ProviderSnapshot.fromJson(
+        jsonDecode(data as String) as Map<String, dynamic>);
   }
 
   Map<ProviderId, ProviderSnapshot> loadAllSnapshots() {
@@ -71,7 +72,8 @@ class HivePersistenceService {
 
   String _settingsToJson(SettingsConfig config) {
     return jsonEncode({
-      'enabledProviders': config.enabledProviders.map((k, v) => MapEntry(k.id, v)),
+      'enabledProviders':
+          config.enabledProviders.map((k, v) => MapEntry(k.id, v)),
       'refreshIntervalMinutes': config.refreshInterval.inMinutes,
       'ttlMinutes': config.ttl.inMinutes,
       'notificationsEnabled': config.notificationsEnabled,

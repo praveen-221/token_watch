@@ -47,7 +47,8 @@ class CopilotProvider extends ProviderAdapter {
   Future<ProviderSnapshot> fetch(FetchContext context) async {
     final token = context.credentials['github_token'];
     if (token == null || token.isEmpty) {
-      throw const CopilotFetchError('GitHub token not configured for Copilot provider');
+      throw const CopilotFetchError(
+          'GitHub token not configured for Copilot provider');
     }
 
     // GitHub Copilot usage is tracked differently than other providers.
@@ -56,7 +57,7 @@ class CopilotProvider extends ProviderAdapter {
     // - /copilot/usage (enterprise only, requires org admin)
     // For individual users, usage is not directly exposed via API.
     // This provider returns a basic snapshot with default limits.
-    return ProviderSnapshot(
+    final snapshot = ProviderSnapshot(
       providerId: ProviderId.copilot,
       fetchedAt: DateTime.now(),
       sourceUsed: 'api',
@@ -65,6 +66,17 @@ class CopilotProvider extends ProviderAdapter {
       sessionLimit: 0, // No hard limit for Copilot (unlimited for paid tier)
       weeklyUsed: 0,
       weeklyLimit: 0,
+    );
+    final cost = await estimateCost(snapshot);
+    return ProviderSnapshot(
+      providerId: snapshot.providerId,
+      fetchedAt: snapshot.fetchedAt,
+      sourceUsed: snapshot.sourceUsed,
+      estimatedCost: cost,
+      sessionUsed: snapshot.sessionUsed,
+      sessionLimit: snapshot.sessionLimit,
+      weeklyUsed: snapshot.weeklyUsed,
+      weeklyLimit: snapshot.weeklyLimit,
     );
   }
 

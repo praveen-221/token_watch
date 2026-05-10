@@ -32,8 +32,10 @@ class TokenGlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final backgroundColor =
-        (backgroundColorOverride ?? cs.surfaceContainerHighest).withValues(alpha: backgroundOpacity);
-    final borderColor = (borderColorOverride ?? cs.outlineVariant).withValues(alpha: 0.5);
+        (backgroundColorOverride ?? cs.surfaceContainerHighest)
+            .withValues(alpha: backgroundOpacity);
+    final borderColor =
+        (borderColorOverride ?? cs.outlineVariant).withValues(alpha: 0.5);
 
     return Container(
       margin: margin,
@@ -55,4 +57,3 @@ class TokenGlassCard extends StatelessWidget {
     );
   }
 }
-

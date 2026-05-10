@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 // Trend line chart with glassy card container and gradient line.
 class TrendLineChart extends StatelessWidget {
@@ -38,13 +37,15 @@ class TrendLineChart extends StatelessWidget {
                     interval: 1,
                     getTitlesWidget: (value, meta) {
                       final idx = value.toInt();
-                      if (idx < 0 || idx >= totalDays) return const SizedBox.shrink();
+                      if (idx < 0 || idx >= totalDays)
+                        return const SizedBox.shrink();
                       // Show day labels: D1, D2, etc.
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           'D${idx + 1}',
-                          style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
+                          style:
+                              theme.textTheme.labelSmall?.copyWith(fontSize: 9),
                         ),
                       );
                     },
@@ -58,13 +59,16 @@ class TrendLineChart extends StatelessWidget {
                     getTitlesWidget: (value, meta) {
                       return Text(
                         _formatNumber(value.toInt()),
-                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
+                        style:
+                            theme.textTheme.labelSmall?.copyWith(fontSize: 9),
                       );
                     },
                   ),
                 ),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(show: false),
               lineBarsData: [
@@ -91,7 +95,10 @@ class TrendLineChart extends StatelessWidget {
                     return touchedSpots.map((spot) {
                       return LineTooltipItem(
                         'Day ${spot.x.toInt() + 1}\n${_formatNumber(spot.y.toInt())} tokens',
-                        TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
+                        TextStyle(
+                            color: primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
                       );
                     }).toList();
                   },

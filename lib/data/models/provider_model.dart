@@ -95,7 +95,9 @@ class ProviderModel {
       weeklyLimit: json['weeklyLimit'] as int?,
       monthlyUsed: json['monthlyUsed'] as int?,
       monthlyLimit: json['monthlyLimit'] as int?,
-      lastSync: json['lastSync'] != null ? DateTime.parse(json['lastSync'] as String) : null,
+      lastSync: json['lastSync'] != null
+          ? DateTime.parse(json['lastSync'] as String)
+          : null,
       sourceUsed: json['sourceUsed'] as String?,
       estimatedCost: (json['estimatedCost'] as num?)?.toDouble(),
     );

@@ -51,22 +51,35 @@ class GoogleProvider extends ProviderAdapter {
   Future<ProviderSnapshot> fetch(FetchContext context) async {
     final apiKey = context.credentials['api_key'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw const GoogleFetchError('API key not configured for Google provider');
+      throw const GoogleFetchError(
+          'API key not configured for Google provider');
     }
 
     // Google AI Studio / Gemini API does not expose a direct usage/tokens endpoint.
     // Usage tracking is done through Google Cloud Console billing.
     // This provider returns an empty snapshot with default limits.
     // Future implementation could integrate with Cloud Billing API.
-    return ProviderSnapshot(
+    final snapshot = ProviderSnapshot(
       providerId: ProviderId.google,
       fetchedAt: DateTime.now(),
       sourceUsed: 'api',
       estimatedCost: 0.0,
       sessionUsed: 0,
-      sessionLimit: 2000000, // Default: 2M tokens (Gemini 1.5 Pro context window)
+      sessionLimit:
+          2000000, // Default: 2M tokens (Gemini 1.5 Pro context window)
       weeklyUsed: 0,
       weeklyLimit: 10000000, // Default: 10M tokens/week
+    );
+    final cost = await estimateCost(snapshot);
+    return ProviderSnapshot(
+      providerId: snapshot.providerId,
+      fetchedAt: snapshot.fetchedAt,
+      sourceUsed: snapshot.sourceUsed,
+      estimatedCost: cost,
+      sessionUsed: snapshot.sessionUsed,
+      sessionLimit: snapshot.sessionLimit,
+      weeklyUsed: snapshot.weeklyUsed,
+      weeklyLimit: snapshot.weeklyLimit,
     );
   }
 

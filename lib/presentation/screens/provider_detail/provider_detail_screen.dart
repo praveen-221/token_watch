@@ -39,13 +39,17 @@ class ProviderDetailScreen extends ConsumerWidget {
             }
           },
         ),
-        title: Hero(tag: 'provider-card-${_providerId.id}', child: Text(_providerId.displayName)),
+        title: Hero(
+            tag: 'provider-card-${_providerId.id}',
+            child: Text(_providerId.displayName)),
         flexibleSpace: ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(16)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -53,7 +57,10 @@ class ProviderDetailScreen extends ConsumerWidget {
           if (isRefreshing)
             const Padding(
               padding: EdgeInsets.only(right: 16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],
       ),
@@ -97,12 +104,15 @@ class ProviderDetailScreen extends ConsumerWidget {
                 if (snapshot.fetchedAt != null)
                   Text(
                     'Last updated: ${_formatDateTime(snapshot.fetchedAt!)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.outline),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.outline),
                   ),
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => ref.read(usageNotifierProvider.notifier).refreshProvider(_providerId),
+        onPressed: () => ref
+            .read(usageNotifierProvider.notifier)
+            .refreshProvider(_providerId),
         icon: const Icon(Icons.refresh),
         label: const Text('Refresh'),
       ),
@@ -113,17 +123,22 @@ class ProviderDetailScreen extends ConsumerWidget {
     // Simple per-category cards for Session, Weekly and Monthly usage inside a glass container
     return Column(
       children: [
-        _buildUsageTile(context, 'Session', snapshot.sessionUsed, snapshot.sessionLimit, snapshot.sessionLevel),
+        _buildUsageTile(context, 'Session', snapshot.sessionUsed,
+            snapshot.sessionLimit, snapshot.sessionLevel),
         const SizedBox(height: 8),
-        _buildUsageTile(context, 'Weekly', snapshot.weeklyUsed, snapshot.weeklyLimit, snapshot.weeklyLevel),
+        _buildUsageTile(context, 'Weekly', snapshot.weeklyUsed,
+            snapshot.weeklyLimit, snapshot.weeklyLevel),
         const SizedBox(height: 8),
-        _buildUsageTile(context, 'Monthly', snapshot.monthlyUsed, snapshot.monthlyLimit, snapshot.monthlyLevel),
+        _buildUsageTile(context, 'Monthly', snapshot.monthlyUsed,
+            snapshot.monthlyLimit, snapshot.monthlyLevel),
       ],
     );
   }
 
-  Widget _buildUsageTile(BuildContext context, String label, int? used, int? limit, UsageLevel level) {
-    final percent = (used != null && limit != null && limit > 0) ? used / limit : 0.0;
+  Widget _buildUsageTile(BuildContext context, String label, int? used,
+      int? limit, UsageLevel level) {
+    final percent =
+        (used != null && limit != null && limit > 0) ? used / limit : 0.0;
     return TokenGlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +146,11 @@ class ProviderDetailScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              Text(label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600)),
               Text(
                 '${(percent * 100).toInt()}%',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -144,7 +163,8 @@ class ProviderDetailScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           LinearProgressIndicator(
             value: percent.clamp(0.0, 1.0),
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            backgroundColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
             color: level.color,
             minHeight: 10,
             borderRadius: BorderRadius.circular(4),
@@ -154,10 +174,12 @@ class ProviderDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLargeUsageDisplay(BuildContext context, ProviderSnapshot snapshot) {
-    final percent = (snapshot.sessionLimit != null && snapshot.sessionLimit! > 0)
-        ? (snapshot.sessionUsed ?? 0) / snapshot.sessionLimit!
-        : 0.0;
+  Widget _buildLargeUsageDisplay(
+      BuildContext context, ProviderSnapshot snapshot) {
+    final percent =
+        (snapshot.sessionLimit != null && snapshot.sessionLimit! > 0)
+            ? (snapshot.sessionUsed ?? 0) / snapshot.sessionLimit!
+            : 0.0;
     final level = snapshot.sessionLevel;
     return TokenGlassCard(
       padding: const EdgeInsets.all(24),

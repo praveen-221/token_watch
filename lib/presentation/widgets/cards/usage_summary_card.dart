@@ -19,7 +19,8 @@ class UsageSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionPercent = totalSessionLimit > 0 ? totalSessionUsed / totalSessionLimit : 0.0;
+    final sessionPercent =
+        totalSessionLimit > 0 ? totalSessionUsed / totalSessionLimit : 0.0;
     final level = UsageLevel.fromPercent(sessionPercent * 100);
     final cs = Theme.of(context).colorScheme;
 
@@ -36,7 +37,8 @@ class UsageSummaryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatColumn(context, 'Session', totalSessionUsed, totalSessionLimit),
+              _buildStatColumn(
+                  context, 'Session', totalSessionUsed, totalSessionLimit),
               SizedBox(
                 width: 100,
                 height: 100,
@@ -49,7 +51,8 @@ class UsageSummaryCard extends StatelessWidget {
                       child: CircularProgressIndicator(
                         value: sessionPercent.clamp(0.0, 1.0),
                         strokeWidth: 6,
-                        backgroundColor: cs.outlineVariant.withValues(alpha: 0.3),
+                        backgroundColor:
+                            cs.outlineVariant.withValues(alpha: 0.3),
                         color: level.color,
                       ),
                     ),
@@ -58,18 +61,21 @@ class UsageSummaryCard extends StatelessWidget {
                       children: [
                         Text(
                           '${(sessionPercent * 100).toInt()}%',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: level.color,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: level.color,
+                                  ),
                         ),
-                        Text('Used', style: Theme.of(context).textTheme.labelSmall),
+                        Text('Used',
+                            style: Theme.of(context).textTheme.labelSmall),
                       ],
                     ),
                   ],
                 ),
               ),
-              _buildStatColumn(context, 'Weekly', totalWeeklyUsed, totalWeeklyLimit),
+              _buildStatColumn(
+                  context, 'Weekly', totalWeeklyUsed, totalWeeklyLimit),
             ],
           ),
           const Divider(height: 32),
@@ -78,7 +84,8 @@ class UsageSummaryCard extends StatelessWidget {
             children: [
               const Icon(Icons.payments_outlined, size: 18),
               const SizedBox(width: 4),
-              Text('Estimated Cost: ', style: Theme.of(context).textTheme.bodyMedium),
+              Text('Estimated Cost: ',
+                  style: Theme.of(context).textTheme.bodyMedium),
               Text(
                 '\$${totalEstimatedCost.toStringAsFixed(4)}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -93,7 +100,8 @@ class UsageSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatColumn(BuildContext context, String label, int used, int limit) {
+  Widget _buildStatColumn(
+      BuildContext context, String label, int used, int limit) {
     return Expanded(
       child: Column(
         children: [
@@ -101,11 +109,15 @@ class UsageSummaryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             _formatNumber(used),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(
             '/ ${_formatNumber(limit)}',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),

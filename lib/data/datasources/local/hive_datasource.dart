@@ -8,7 +8,10 @@ class HiveDatasource {
   final Box usageBox;
   final Box settingsBox;
 
-  HiveDatasource({required this.providerBox, required this.usageBox, required this.settingsBox});
+  HiveDatasource(
+      {required this.providerBox,
+      required this.usageBox,
+      required this.settingsBox});
 
   // Provider snapshot cache
   Future<void> saveSnapshot(ProviderModel model) async {
@@ -34,7 +37,8 @@ class HiveDatasource {
     return items.last;
   }
 
-  Future<List<UsageModel>> getUsageHistory(String providerId, {DateTime? from, DateTime? to}) async {
+  Future<List<UsageModel>> getUsageHistory(String providerId,
+      {DateTime? from, DateTime? to}) async {
     final all = <UsageModel>[];
     for (final key in usageBox.keys) {
       final data = usageBox.get(key);

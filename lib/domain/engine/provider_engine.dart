@@ -16,11 +16,16 @@ class ProviderEngine {
   final HiveDatasource? _hiveDatasource;
   SettingsConfig _settings;
 
-  final _snapshotController = StreamController<Map<ProviderId, ProviderSnapshot>>.broadcast();
+  final _snapshotController =
+      StreamController<Map<ProviderId, ProviderSnapshot>>.broadcast();
   Map<ProviderId, ProviderSnapshot> _snapshot = {};
   final Map<ProviderId, ProviderSnapshot> _cache = {};
 
-  ProviderEngine({required this.registry, required this.orchestrator, SettingsConfig? initialSettings, HiveDatasource? hiveDatasource})
+  ProviderEngine(
+      {required this.registry,
+      required this.orchestrator,
+      SettingsConfig? initialSettings,
+      HiveDatasource? hiveDatasource})
       : _settings = initialSettings ?? SettingsConfig.defaultConfig(),
         _hiveDatasource = hiveDatasource;
 
@@ -56,7 +61,8 @@ class ProviderEngine {
     List<ProviderId>? providerIds,
     Map<ProviderId, String>? apiKeys,
   }) async {
-    final snapshots = await orchestrator.refreshAll(providerIds: providerIds, apiKeys: apiKeys);
+    final snapshots = await orchestrator.refreshAll(
+        providerIds: providerIds, apiKeys: apiKeys);
     _snapshot = snapshots;
     _cache.addAll(snapshots);
     _snapshotController.add(_snapshot);
@@ -73,14 +79,20 @@ class ProviderEngine {
   ProviderSnapshot? getSnapshot(ProviderId id) => _snapshot[id];
 
   List<ProviderId> getEnabledProviders() {
-    final keys = _settings.enabledProviders.entries.where((e) => e.value).map((e) => e.key).toList();
+    final keys = _settings.enabledProviders.entries
+        .where((e) => e.value)
+        .map((e) => e.key)
+        .toList();
     if (keys.isEmpty) return ProviderId.values.toList();
     return keys;
   }
 
-  void updateSettings(SettingsConfig config) { _settings = config; }
+  void updateSettings(SettingsConfig config) {
+    _settings = config;
+  }
 
-  Stream<Map<ProviderId, ProviderSnapshot>> get snapshotStream => _snapshotController.stream;
+  Stream<Map<ProviderId, ProviderSnapshot>> get snapshotStream =>
+      _snapshotController.stream;
 
   // Cache methods used by presentation layer
   Future<void> persistSnapshot(ProviderId id, ProviderSnapshot snapshot) async {

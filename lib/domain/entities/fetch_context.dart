@@ -15,7 +15,11 @@ class FetchContext {
     this.sessionId,
   });
 
-  FetchContext copyWith({ProviderId? providerId, SourceMode? sourceMode, Map<String, String>? credentials, String? sessionId}) {
+  FetchContext copyWith(
+      {ProviderId? providerId,
+      SourceMode? sourceMode,
+      Map<String, String>? credentials,
+      String? sessionId}) {
     return FetchContext(
       providerId: providerId ?? this.providerId,
       sourceMode: sourceMode ?? this.sourceMode,

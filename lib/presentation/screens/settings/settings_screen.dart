@@ -20,11 +20,13 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Settings'),
         flexibleSpace: ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(16)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -40,16 +42,19 @@ class SettingsScreen extends ConsumerWidget {
                 return SwitchListTile(
                   title: Text(id.displayName),
                   hoverColor: Colors.transparent,
-                  thumbColor: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
+                  thumbColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
                       return Colors.white;
                     }
                     return Theme.of(context).colorScheme.onSurfaceVariant;
                   }),
                   activeTrackColor: Theme.of(context).colorScheme.primary,
-                  inactiveTrackColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  inactiveTrackColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   value: enabled,
-                  onChanged: (v) => ref.read(settingsNotifierProvider.notifier).toggleProvider(id, v),
+                  onChanged: (v) => ref
+                      .read(settingsNotifierProvider.notifier)
+                      .toggleProvider(id, v),
                 );
               }).toList(),
             ),
@@ -72,16 +77,19 @@ class SettingsScreen extends ConsumerWidget {
               title: const Text('Usage Alerts'),
               subtitle: const Text('Notify when approaching limits'),
               hoverColor: Colors.transparent,
-              thumbColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              thumbColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return Colors.white;
                 }
                 return Theme.of(context).colorScheme.onSurfaceVariant;
               }),
               activeTrackColor: Theme.of(context).colorScheme.primary,
-              inactiveTrackColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              inactiveTrackColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
               value: settings.notificationsEnabled,
-              onChanged: (v) => ref.read(settingsNotifierProvider.notifier).setNotifications(v),
+              onChanged: (v) => ref
+                  .read(settingsNotifierProvider.notifier)
+                  .setNotifications(v),
             ),
           ),
           // Use Visibility to prevent layout crashes during state transitions.
@@ -90,25 +98,27 @@ class SettingsScreen extends ConsumerWidget {
             visible: settings.notificationsEnabled,
             child: _SectionCard(
               title: 'Alert Threshold',
-                child: ListTile(
-                  title: const Text('Alert Threshold'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('${(settings.alertThreshold * 100).toInt()}%'),
-                      Slider(
-                        value: settings.alertThreshold,
-                        min: 0.5,
-                        max: 1.0,
-                        divisions: 10,
-                        label: '${(settings.alertThreshold * 100).toInt()}%',
-                        onChanged: (v) => ref.read(settingsNotifierProvider.notifier).setAlertThreshold(v),
-                      ),
-                    ],
-                  ),
-                  hoverColor: Colors.transparent,
+              child: ListTile(
+                title: const Text('Alert Threshold'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${(settings.alertThreshold * 100).toInt()}%'),
+                    Slider(
+                      value: settings.alertThreshold,
+                      min: 0.5,
+                      max: 1.0,
+                      divisions: 10,
+                      label: '${(settings.alertThreshold * 100).toInt()}%',
+                      onChanged: (v) => ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setAlertThreshold(v),
+                    ),
+                  ],
                 ),
+                hoverColor: Colors.transparent,
+              ),
             ),
           ),
           const Divider(),
@@ -145,9 +155,9 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const Divider(),
-          _SectionCard(
+          const _SectionCard(
             title: 'About',
-            child: const ListTile(
+            child: ListTile(
               title: Text('Token Watch'),
               subtitle: Text('v0.1.0'),
               trailing: Icon(Icons.info_outline),
@@ -194,7 +204,8 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-void _showRefreshIntervalDialog(BuildContext context, WidgetRef ref, SettingsConfig settings) {
+void _showRefreshIntervalDialog(
+    BuildContext context, WidgetRef ref, SettingsConfig settings) {
   showDialog(
     context: context,
     builder: (ctx) => SimpleDialog(
@@ -202,7 +213,9 @@ void _showRefreshIntervalDialog(BuildContext context, WidgetRef ref, SettingsCon
       children: [1, 5, 15, 30].map((m) {
         return SimpleDialogOption(
           onPressed: () {
-            ref.read(settingsNotifierProvider.notifier).setRefreshInterval(Duration(minutes: m));
+            ref
+                .read(settingsNotifierProvider.notifier)
+                .setRefreshInterval(Duration(minutes: m));
             Navigator.pop(ctx);
           },
           child: Text('$m minute${m > 1 ? 's' : ''}'),
@@ -212,7 +225,8 @@ void _showRefreshIntervalDialog(BuildContext context, WidgetRef ref, SettingsCon
   );
 }
 
-void _showThemeDialog(BuildContext context, WidgetRef ref, SettingsConfig settings) {
+void _showThemeDialog(
+    BuildContext context, WidgetRef ref, SettingsConfig settings) {
   showDialog(
     context: context,
     builder: (ctx) => SimpleDialog(
@@ -220,21 +234,27 @@ void _showThemeDialog(BuildContext context, WidgetRef ref, SettingsConfig settin
       children: [
         SimpleDialogOption(
           onPressed: () {
-            ref.read(settingsNotifierProvider.notifier).setThemeMode(ThemeMode.system);
+            ref
+                .read(settingsNotifierProvider.notifier)
+                .setThemeMode(ThemeMode.system);
             Navigator.pop(ctx);
           },
           child: const Text('System'),
         ),
         SimpleDialogOption(
           onPressed: () {
-            ref.read(settingsNotifierProvider.notifier).setThemeMode(ThemeMode.light);
+            ref
+                .read(settingsNotifierProvider.notifier)
+                .setThemeMode(ThemeMode.light);
             Navigator.pop(ctx);
           },
           child: const Text('Light'),
         ),
         SimpleDialogOption(
           onPressed: () {
-            ref.read(settingsNotifierProvider.notifier).setThemeMode(ThemeMode.dark);
+            ref
+                .read(settingsNotifierProvider.notifier)
+                .setThemeMode(ThemeMode.dark);
             Navigator.pop(ctx);
           },
           child: const Text('Dark'),
@@ -251,7 +271,8 @@ void _showClearCacheDialog(BuildContext context, WidgetRef ref) {
       title: const Text('Clear Cache'),
       content: const Text('This will remove all cached usage data. Continue?'),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+        TextButton(
+            onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
         FilledButton(
           onPressed: () async {
             ref.read(usageNotifierProvider.notifier).clearCache();

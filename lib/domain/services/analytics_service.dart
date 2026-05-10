@@ -4,10 +4,11 @@ import '../entities/provider_id.dart';
 class AnalyticsService {
   Future<Map<ProviderId, double>> getUsageByProvider(Duration period) async {
     // Placeholder implementation; in domain layer this would query Hive or similar
-    return { for (var p in ProviderId.values) p: 0.0 };
+    return {for (var p in ProviderId.values) p: 0.0};
   }
 
-  Future<List<Map<ProviderId, double>>> getTrendOverTime(Duration period) async {
+  Future<List<Map<ProviderId, double>>> getTrendOverTime(
+      Duration period) async {
     // Placeholder trend data
     return [];
   }
